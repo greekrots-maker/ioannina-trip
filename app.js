@@ -1,5 +1,5 @@
 const E={stop:'📍',charge:'⚡',food:'🍽️',alt:'↪️',hotel:'🏨'},$=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const KEY='gt-state-v1',gmap=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+const KEY='gt-state-v2',gmap=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
 const DEF=()=>({items:D.items.map((i,k)=>({...i,id:k+1})),hot:D.hot.map(h=>({...h})),bud:D.bud.map(b=>({...b})),hsel:-1,scen:'full'});
 let S;try{S=JSON.parse(localStorage[KEY])}catch(e){}if(!S||!S.items)S=DEF();
 const save=()=>{localStorage[KEY]=JSON.stringify(S);renderAll()};
@@ -61,7 +61,7 @@ ${EDIT?`<button class="btn" onclick="addBud()">＋ Νέο έξοδο</button>`:'
 <h3>Διαμονή (κοντά στη φύση)</h3><div class="card"><label class="hrow"><input type="radio" name="hs" ${S.hsel<0?'checked':''} onchange="selH(-1)"><div class="c">Δεν έχει κλειστεί (TBD)</div></label>
 ${S.hot.map((h,k)=>`<label class="hrow"><input type="radio" name="hs" ${S.hsel==k?'checked':''} onchange="selH(${k})"><div class="c"><b>${esc(h.n)}</b><br><small>€${h.p} για 3 νύχτες</small></div>${EDIT?`<button class="ib" onclick="event.preventDefault();editH(${k})">✎</button>`:`<a href="${h.u}" target="_blank">Χάρτης ›</a>`}</label>`).join('')}
 ${EDIT?`<button class="btn" onclick="addH()">＋ Νέο ξενοδοχείο</button>`:''}</div>
-<h3>Φόρτιση BYD Seal U</h3><div class="card" style="font-size:14px">87 kWh ωφέλιμη · ~24 kWh/100 χλμ στην εθνική (EV Database/Green NCAP). Μία στάση DC στο Αγρίνιο (Kapsiochas, ΔΕΗ blue 60 kW) σε κάθε διαδρομή. AC στην Κανάρη, Γιάννενα. App <b>PPC blue</b> ως μέλος: AC €0,40 / DC €0,52.</div>
+<h3>Φόρτιση BYD Seal U</h3><div class="card" style="font-size:14px">87 kWh ωφέλιμη · ~24 kWh/100 χλμ στην εθνική (EV Database/Green NCAP). Πήγαινε: DC στο Αγρίνιο (Kapsiochas, ΔΕΗ blue 60 kW). Γυρισμός μέσω Μετεώρων (488 χλμ): ξεκινάτε ~100%, DC στο Shell Travel Stop Λαμίας (εναλλακτικά Αταλάντη NRG ή ΔΕΗ blue Κάστρο 135 kW). AC στην Κανάρη, Γιάννενα. App <b>PPC blue</b> ως μέλος: AC €0,40 / DC €0,52.</div>
 <h3>Offline & δεδομένα</h3><div class="card"><button class="btn p" onclick="dlTiles()">⬇️ Λήψη χάρτη για offline</button><div id="tilest" style="font-size:13px;color:#78716c">${localStorage.tilesDone?'✅ Χάρτης αποθηκευμένος '+fmtT(+localStorage.tilesDone):'Φωτογραφίες και πρόγραμμα αποθηκεύονται αυτόματα. Ο χάρτης θέλει λήψη μία φορά (~25 MB, με Wi-Fi).'}</div>
 <button class="btn" onclick="fetchWx()">🔄 Ανανέωση καιρού</button><button class="btn p" onclick="shareLink()">🔗 Κοινοποίηση / Αντιγραφή link</button><button class="btn" onclick="exportJ()">📤 Αντίγραφο (JSON)</button><button class="btn" onclick="$('#imp').click()">📥 Επαναφορά από αντίγραφο</button><input type="file" id="imp" accept="application/json" hidden onchange="importJ(this)"><button class="btn" style="color:#b91c1c" onclick="resetAll()">↺ Επαναφορά αρχικών</button></div>
 <p class="tiny">Φωτογραφίες: Wikimedia Commons · ${Object.entries(D.cr).map(([k,c])=>`<a href="${c.p}" target="_blank">${k}</a> (${c.a}, ${c.l})`).join(' · ')} · Χάρτης © OpenStreetMap contributors · Διαδρομές OSRM · Καιρός open-meteo</p>`}
@@ -75,7 +75,7 @@ function importJ(inp){const f=inp.files[0];if(!f)return;f.text().then(t=>{const 
 function resetAll(){if(confirm('Να χαθούν όλες οι αλλαγές σου;')){S=DEF();save()}}
 // ---- offline tiles (user-triggered, bounded)
 function tl(z,la,lo){const n=2**z;return[Math.floor((lo+180)/360*n),Math.floor((1-Math.asinh(Math.tan(la*Math.PI/180))/Math.PI)/2*n)]}
-function tileList(){const B=[[39.55,39.98,20.65,21.25,9,13],[37.8,39.95,20.6,23.9,7,8],[39.62,39.72,20.78,20.90,14,15],[39.84,39.92,20.73,20.81,14,14],[39.76,39.78,21.17,21.20,14,14]],o=[];
+function tileList(){const B=[[39.55,39.98,20.65,21.25,9,13],[37.8,39.95,20.6,23.9,7,8],[39.62,39.72,20.78,20.90,14,15],[39.84,39.92,20.73,20.81,14,14],[39.76,39.78,21.17,21.20,14,14],[39.62,39.80,21.25,21.75,12,13],[39.70,39.735,21.60,21.66,14,15]],o=[];
  for(const[a1,a2,o1,o2,z1,z2]of B)for(let z=z1;z<=z2;z++){const[x1,y1]=tl(z,a2,o1),[x2,y2]=tl(z,a1,o2);for(let x=x1;x<=x2;x++)for(let y=y1;y<=y2;y++)o.push(`https://tile.openstreetmap.org/${z}/${x}/${y}.png`)}return o}
 async function dlTiles(){const L=tileList(),st=$('#tilest');if(!navigator.onLine){st.textContent='Χρειάζεται σύνδεση.';return}const c=await caches.open('tiles');let done=0,fail=0,i=0;
  const w=async()=>{while(i<L.length){const u=L[i++];try{if(!(await c.match(u))){const r=await fetch(u);if(r.ok)await c.put(u,r);else fail++}}catch(e){fail++}done++;st.textContent=`Λήψη χάρτη: ${done}/${L.length}${fail?` (${fail} απέτυχαν)`:''}`}};
