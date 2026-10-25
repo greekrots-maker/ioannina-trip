@@ -13,7 +13,7 @@ function row(i,edit){const inner=`<div class="th" style="${thumb(i)}">${i.im?'':
  if(edit)return `<div class="row ${i.ty}">${inner}<div class="ed"><button onclick="mv(${i.id},-1)">↑</button><button onclick="mv(${i.id},1)">↓</button><button onclick="openItem(${i.id})">✎</button><button onclick="del(${i.id})">🗑</button></div></div>`;
  return `<a class="row ${i.ty||''}" href="${i.u}" target="_blank" rel="noopener">${inner}<div class="go">›</div></a>`}
 // ---- plan
-function pickDay(d){DAY=+d;localStorage.day=d;renderPlan()}
+function pickDay(d){DAY=+d;localStorage.day=d;renderPlan();if(map&&document.body.classList.contains('wplan'))fit('d'+DAY)}
 function renderPlan(){document.querySelectorAll('#days button').forEach(b=>b.classList.toggle('on',b.dataset.d==DAY));const y=D.days[DAY];
  $('#meta').textContent=`${y.ti} · 🚗 ${y.km} χλμ · ~${Math.floor(y.mn/60)}ω${String(y.mn%60).padStart(2,'0')} οδήγηση`;
  const its=S.items.filter(i=>i.d==DAY);let html='';const isToday=TM[today]==DAY&&!EDIT,n=nowHM();let placed=!isToday;
@@ -104,10 +104,11 @@ function drawMarkers(){if(!map)return;mlayer.clearLayers();const ic=e=>L.divIcon
 function fit(k){document.querySelectorAll('#mapf button').forEach(b=>b.classList.toggle('on',b.dataset.k==k));map.fitBounds((k=='all'?L.featureGroup(Object.values(lines)):lines[k]).getBounds(),{padding:[50,30]})}
 // ---- tabs & boot
 function renderAll(){renderPlan();renderPlaces();renderCost();drawMarkers()}
-function tab(t){document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id=='t-'+t));document.querySelectorAll('nav.tb button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));if(t=='map'){if(!map)initMap();setTimeout(()=>map.invalidateSize(),50)}scrollTo(0,0);history.replaceState(null,'','#'+t)}
+const WIDE=matchMedia('(min-width:900px)');function syncWide(){const t=(document.querySelector('.tab.on')||{}).id;document.body.classList.toggle('wplan',WIDE.matches&&t=='t-plan');if(WIDE.matches&&t=='t-plan'){if(!map)initMap();setTimeout(()=>{map.invalidateSize();fit('d'+DAY)},60)}}
+function tab(t){document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id=='t-'+t));document.querySelectorAll('nav.tb button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));if(t=='map'){if(!map)initMap();setTimeout(()=>map.invalidateSize(),50)}scrollTo(0,0);history.replaceState(null,'','#'+t);syncWide()}
 document.querySelectorAll('nav.tb button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
 DAY=TM[today]||+localStorage.day||1;renderAll();checkShared().then(sh=>{if(!sh&&location.hash.length>1)tab(location.hash.slice(1))});
-fetchWx();setInterval(()=>{if(TM[today]&&!EDIT&&$('#t-plan').classList.contains('on'))renderPlan()},60000);addEventListener('online',fetchWx);
+syncWide();WIDE.addEventListener('change',syncWide);fetchWx();setInterval(()=>{if(TM[today]&&!EDIT&&$('#t-plan').classList.contains('on'))renderPlan()},60000);addEventListener('online',fetchWx);
 const ios=/iphone|ipad|ipod/i.test(navigator.userAgent),sa=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
 function hideHint(){$('#hint').style.display='none';localStorage.hint=1}if(ios&&!sa&&!localStorage.hint)$('#hint').style.display='block';
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');

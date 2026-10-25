@@ -46,6 +46,20 @@ nav.tb button span{font-size:24px;line-height:1}nav.tb button.on{color:var(--g);
 #modal form{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:16px 16px calc(16px + var(--sb));max-height:90vh;overflow:auto}
 #modal label{display:block;font-size:12px;color:var(--m);margin-top:10px}#modal input,#modal select,#modal textarea{width:100%;font-size:16px;padding:10px;border:1px solid #d6d3d1;border-radius:10px;margin-top:4px;font-family:inherit}
 .two{display:flex;gap:8px}.two>*{flex:1}
+
+@media(min-width:900px){
+nav.tb{top:0;bottom:0;right:auto;width:200px;height:auto;flex-direction:column;justify-content:flex-start;padding:24px 10px;gap:6px;border-top:0;border-right:1px solid #e7e5e4}
+nav.tb button{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:12px;font-size:15px;padding:12px 14px;border-radius:12px}
+nav.tb button.on{background:#ecfdf5}
+.tab{margin-left:200px;padding-bottom:32px;max-width:760px}
+body.wplan #t-plan{width:460px;max-width:460px}
+body.wplan #t-map,#t-map.on{display:block}
+#map{left:200px;bottom:0}#mapf{left:212px;top:12px}
+body.wplan #map{left:660px}body.wplan #mapf{left:672px}
+#t-map{margin:0}
+#hint{display:none!important}
+#modal{align-items:center;justify-content:center}#modal form{max-width:520px;border-radius:20px}
+}
 </style></head><body>
 <section class="tab on" id="t-plan"><div class="top hd"><div><h1>Γιάννενα</h1><p>Τρ 27 – Πα 30 Οκτ 2026 · 2 ενήλικες · BYD Seal U</p></div><button class="ib" id="edb" onclick="toggleEdit()">✏️</button></div><div class="days" id="days"></div><div class="wx" id="wx"></div><p class="meta" id="meta"></p><div id="list"></div><div style="padding:0 12px 20px"><button class="btn" onclick="shareLink()">🔗 Κοινοποίηση / Αντιγραφή link</button></div></section>
 <section class="tab" id="t-map"><div id="map"></div><div id="mapf"></div></section>
