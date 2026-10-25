@@ -33,48 +33,32 @@ nav.tb button{flex:1;border:0;background:none;font-size:11px;color:var(--m);disp
 nav.tb button span{font-size:24px;line-height:1}nav.tb button.on{color:var(--g);font-weight:700}
 #hint{position:fixed;z-index:2000;left:12px;right:12px;bottom:calc(var(--tb) + var(--sb) + 12px);background:#1c1917;color:#fff;border-radius:16px;padding:14px 44px 14px 14px;font-size:14px;display:none}
 #hint button{position:absolute;right:8px;top:8px;border:0;background:none;color:#fff;font-size:22px;width:36px;height:36px}
+
+.hd{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.ib{border:0;background:#fff;border-radius:12px;min-width:44px;height:44px;font-size:18px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.ib.on{background:var(--g);color:#fff}.wx{margin:0 16px 8px;font-size:13px;color:var(--t);background:#fff;border-radius:12px;padding:8px 12px}.wx small{color:var(--m)}
+.now{margin:6px 16px;display:flex;align-items:center;gap:8px;color:#dc2626;font-weight:700;font-size:13px}.now:after{content:"";flex:1;height:2px;background:#dc2626}
+.ed{display:flex;gap:4px}.ed button{border:0;background:#f0efeb;border-radius:10px;width:40px;height:40px;font-size:16px}
+.add{display:block;margin:10px 12px;width:calc(100% - 24px);border:2px dashed #a8a29e;background:none;border-radius:16px;min-height:52px;font-size:15px;color:var(--m)}
+.seg{display:flex;background:#e7e5e4;border-radius:14px;padding:4px;margin:8px 12px}.seg button{flex:1;border:0;background:none;border-radius:10px;min-height:44px;font-size:15px}.seg button.on{background:#fff;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.okc{background:#f0fdf4;color:#166534}.hrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0efeb}.hrow input{width:22px;height:22px}.hrow .c{flex:1}.hrow a{color:#1a73e8;font-size:14px}
+.btn{display:block;width:100%;border:0;border-radius:14px;min-height:50px;font-size:15px;background:#fff;margin:8px 0;box-shadow:0 1px 3px rgba(0,0,0,.08)}.btn.p{background:var(--g);color:#fff}
+#modal{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.4);display:none;align-items:flex-end}#modal.on{display:flex}
+#modal form{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:16px 16px calc(16px + var(--sb));max-height:90vh;overflow:auto}
+#modal label{display:block;font-size:12px;color:var(--m);margin-top:10px}#modal input,#modal select,#modal textarea{width:100%;font-size:16px;padding:10px;border:1px solid #d6d3d1;border-radius:10px;margin-top:4px;font-family:inherit}
+.two{display:flex;gap:8px}.two>*{flex:1}
 </style></head><body>
-<section class="tab on" id="t-plan"><div class="top"><h1>Γιάννενα</h1><p>27–30 Οκτ · 2 άτομα · BYD Seal U</p></div><div class="days" id="days"></div><p class="meta" id="meta"></p><div id="list"></div></section>
+<section class="tab on" id="t-plan"><div class="top hd"><div><h1>Γιάννενα</h1><p>Τρ 27 – Πα 30 Οκτ 2026 · 2 ενήλικες · BYD Seal U</p></div><button class="ib" id="edb" onclick="toggleEdit()">✏️</button></div><div class="days" id="days"></div><div class="wx" id="wx"></div><p class="meta" id="meta"></p><div id="list"></div></section>
 <section class="tab" id="t-map"><div id="map"></div><div id="mapf"></div></section>
-<section class="tab" id="t-places"><div class="top"><h1>Μέρη</h1><p>Πάτα για να ανοίξει στο Google Maps</p></div><div id="places"></div></section>
-<section class="tab" id="t-cost"><div class="top"><h1>Κόστος</h1><p>Για 2 άτομα, όλα μέσα</p></div><div id="cost"></div></section>
+<section class="tab" id="t-places"><div class="top"><h1>Μέρη</h1><p>Πάτα για να ανοίξει το μέρος στο Google Maps</p></div><div id="places"></div></section>
+<section class="tab" id="t-cost"><div class="top"><h1>Κόστος</h1><p>Για 2 άτομα, όλα μέσα · στόχος €400 (€200/άτομο)</p></div><div id="cost"></div></section>
 <nav class="tb"><button data-t="plan" class="on"><span>🗓️</span>Πρόγραμμα</button><button data-t="map"><span>🗺️</span>Χάρτης</button><button data-t="places"><span>📍</span>Μέρη</button><button data-t="cost"><span>💶</span>Κόστος</button></nav>
-<div id="hint"><button onclick="hideHint()">×</button><b>Βάλ' το στην αρχική οθόνη</b><br>Στο Safari πάτα <b>Κοινοποίηση ⬆️</b> και μετά <b>«Προσθήκη στην οθόνη Αφετηρίας»</b>. Δουλεύει και χωρίς σήμα.</div>
+<div id="hint"><button onclick="hideHint()">×</button><b>Βάλ' το στην αρχική οθόνη</b><br>Στο Safari πάτα <b>Κοινοποίηση ⬆️</b> και μετά <b>«Προσθήκη στην οθόνη Αφετηρίας»</b>. Μετά πάτα «Λήψη για offline» στο Κόστος.</div>
+<div id="modal"><form id="mf" onsubmit="saveItem(event)"><h2 style="margin:0">Στάση</h2>
+<div class="two"><label>Μέρα<select name="d"><option value="1">Τρ 27</option><option value="2">Τε 28</option><option value="3">Πε 29</option><option value="4">Πα 30</option></select></label><label>Ώρα<input name="t" placeholder="10:30"></label></div>
+<label>Όνομα<input name="n" required></label><label>Σημείωση<textarea name="x" rows="3"></textarea></label>
+<label>Τύπος<select name="ty"><option value="stop">📍 Αξιοθέατο</option><option value="food">🍽️ Φαγητό</option><option value="charge">⚡ Φόρτιση</option><option value="alt">↪️ Εναλλακτικό</option></select></label>
+<label>Αναζήτηση στο Google Maps (όνομα μέρους)<input name="q" placeholder="π.χ. Σπήλαιο Περάματος"></label>
+<div class="two"><label>Lat<input name="la" inputmode="decimal"></label><label>Lng<input name="lo" inputmode="decimal"></label></div>
+<div class="two" style="margin-top:14px"><button type="button" class="btn" onclick="closeModal()">Άκυρο</button><button class="btn p">Αποθήκευση</button></div></form></div>
 <script src="vendor/leaflet.js"></script><script src="routes.js"></script><script src="data.js"></script>
-<script>
-const E={stop:'📍',charge:'⚡',food:'🍽️',alt:'↪️',hotel:'🏨'},$=s=>document.querySelector(s);
-const row=(i)=>`<a class="row ${i.ty||''}" href="${i.u}" target="_blank" rel="noopener"><div class="th" style="${i.im?`background-image:url(img/t/${i.im}.jpg)`:''}">${i.im?'':E[i.ty||'hotel']}</div><div class="c">${i.t?`<div class="tm">${i.t}</div>`:''}<div class="n">${i.n.replace(/^⚡\s*/,'')}</div><div class="x">${i.x||''}</div></div><div class="go">›</div></a>`;
-// plan
-function pickDay(d){document.querySelectorAll('#days button').forEach(b=>b.classList.toggle('on',b.dataset.d==d));const y=D.days[d];$('#meta').textContent=`${y.ti} · 🚗 ${y.km} χλμ · ${Math.floor(y.mn/60)}ω${String(y.mn%60).padStart(2,'0')} · ${y.w}`;$('#list').innerHTML=D.items.filter(i=>i.d==d).map(row).join('');localStorage.day=d}
-$('#days').innerHTML=Object.entries(D.days).map(([d,y])=>`<button data-d="${d}" onclick="pickDay(${d})"><b>Μέρα ${d}</b>${y.dt.split(' ')[0]} ${y.dt.split(' ')[1]}</button>`).join('');
-const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Athens'}).format(new Date()),TM={'2026-10-27':1,'2026-10-28':2,'2026-10-29':3,'2026-10-30':4};
-pickDay(TM[today]||localStorage.day||1);
-// places
-const seen=new Set(),uniq=a=>a.filter(i=>!seen.has(i.u)&&seen.add(i.u));const skip=/^(Αναχώρηση|Άφιξη Αθήνα)/;
-const G=[['Αξιοθέατα',D.items.filter(i=>(i.ty=='stop'||i.ty=='alt')&&!skip.test(i.n))],['Φαγητό',D.items.filter(i=>i.ty=='food')],['Φόρτιση',D.items.filter(i=>i.ty=='charge')],['Διαμονή (υποψήφια, TBD)',D.hot.map(h=>({...h,ty:'hotel'}))]];
-$('#places').innerHTML=G.map(([h,a])=>`<h3>${h}</h3>`+uniq(a).map(i=>row({...i,t:''})).join('')).join('');
-// cost
-$('#cost').innerHTML=`<div class="card"><div class="big">${D.tot}</div><div style="color:#78716c">ανάλογα με το ξενοδοχείο</div></div>
-<div class="card warn">⚠️ Δεν χωράει στα €400. Είναι <b>${D.over}</b> πάνω.</div>
-<div class="card">${D.br.map(b=>`<div class="li"><div>${b.a}<small>${b.c}</small></div><b>${b.v}</b></div>`).join('')}</div>
-<h3>Πού γλιτώνουμε</h3><div class="card"><div class="li"><div>Ξενοδοχείο με δωρεάν φόρτιση</div><b>−€46</b></div><div class="li"><div>Φθηνά μεσημεριανά (πίτες, φούρνος)</div><b>−€60–80</b></div><div class="li"><div>Gousias αντί για €220</div><b>−€68</b></div><div class="li"><div>2 νύχτες αντί 3</div><b>−€50–75</b></div><div class="li"><div>Χωρίς Μέτσοβο</div><b>−€10</b></div></div>
-<h3>Φόρτιση</h3><div class="card" style="font-size:14px">87 kWh μπαταρία · ~24 kWh/100 χλμ στην εθνική. Μία στάση DC στο Αγρίνιο σε κάθε διαδρομή, AC στην Κανάρη (Γιάννενα). App <b>PPC blue</b>, ως μέλος: AC €0,40 / DC €0,52 ανά kWh.</div>
-<p class="tiny">Φωτογραφίες: Wikimedia Commons · ${Object.entries(D.cr).map(([k,c])=>`<a href="${c.p}" target="_blank">${k}</a> (${c.a}, ${c.l})`).join(' · ')} · Χάρτης © OpenStreetMap</p>`;
-// map
-let map,lines={};const C={d1:'#14532d',d2:'#b45309',d3:'#1d4ed8',d3m:'#7c3aed',d4:'#be123c'};
-function initMap(){map=L.map('map',{zoomControl:false});L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
-for(const k in ROUTES)lines[k]=L.polyline(ROUTES[k].coords,{color:C[k],weight:5,opacity:.85,dashArray:k=='d3m'?'8 8':null}).addTo(map);
-const ic=e=>L.divIcon({html:`<div style="font-size:24px">${e}</div>`,className:'',iconSize:[28,28],iconAnchor:[14,24]});
-const pop=i=>`<b>${i.n}</b><br><a href="${i.u}" target="_blank" style="color:#1a73e8;font-size:15px">Άνοιγμα στο Google Maps ›</a>`;
-uniq2(D.items).forEach(i=>L.marker([i.la,i.lo],{icon:ic(E[i.ty])}).bindPopup(pop(i)).addTo(map));D.hot.forEach(h=>L.marker([h.la,h.lo],{icon:ic('🏨')}).bindPopup(pop(h)).addTo(map));
-$('#mapf').innerHTML=[['all','Όλα'],['d1','Τρ'],['d2','Τε'],['d3','Πε'],['d3m','Μέτσοβο'],['d4','Πα']].map(([k,t])=>`<button data-k="${k}" onclick="fit('${k}')">${t}</button>`).join('');fit(localStorage.day?'d'+localStorage.day:'all')}
-function uniq2(a){const s=new Set();return a.filter(i=>!s.has(i.u)&&s.add(i.u))}
-function fit(k){document.querySelectorAll('#mapf button').forEach(b=>b.classList.toggle('on',b.dataset.k==k));map.fitBounds((k=='all'?L.featureGroup(Object.values(lines)):lines[k]).getBounds(),{padding:[50,30]})}
-// tabs
-function tab(t){document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id=='t-'+t));document.querySelectorAll('nav.tb button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));if(t=='map'){if(!map)initMap();setTimeout(()=>map.invalidateSize(),50)}scrollTo(0,0);location.hash=t}
-document.querySelectorAll('nav.tb button').forEach(b=>b.onclick=()=>tab(b.dataset.t));if(location.hash.length>1)tab(location.hash.slice(1));
-// install hint
-const ios=/iphone|ipad|ipod/i.test(navigator.userAgent),sa=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
-function hideHint(){$('#hint').style.display='none';localStorage.hint=1}if(ios&&!sa&&!localStorage.hint)$('#hint').style.display='block';
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
-</script></body></html>
+<script src="app.js"></script></body></html>
