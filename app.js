@@ -89,7 +89,7 @@ async function encState(o){const u8=new TextEncoder().encode(JSON.stringify(o));
 async function decState(s){const k=s[0],u8=ub64(s.slice(1));return JSON.parse(new TextDecoder().decode(k=='z'?await pipe(u8,new DecompressionStream('deflate-raw')):u8))}
 async function shareLink(){const url=location.origin+location.pathname+'#s='+await encState(S);
  try{if(navigator.share){await navigator.share({title:'Γιάννενα Τριήμερο',text:'Το πρόγραμμά μας για τα Γιάννενα',url});return}}catch(e){if(e.name=='AbortError')return}
- try{await navigator.clipboard.writeText(url);alert('Το link αντιγράφηκε. Στείλ' το στην άλλη συσκευή.')}catch(e){prompt('Αντέγραψε το link:',url)}}
+ try{await navigator.clipboard.writeText(url);alert('Το link αντιγράφηκε. Στείλε το στην άλλη συσκευή.')}catch(e){prompt('Αντέγραψε το link:',url)}}
 async function checkShared(){const m=location.hash.match(/^#s=(.+)$/);if(!m)return false;history.replaceState(null,'',location.pathname);
  try{const o=await decState(m[1]);if(!o.items)throw 0;if(confirm('Να φορτωθεί το πρόγραμμα που σου στάλθηκε;')){S=o;save()}}catch(e){alert('Το link δεν είναι έγκυρο.')}return true}
 // ---- map
