@@ -63,7 +63,7 @@ ${S.hot.map((h,k)=>`<label class="hrow"><input type="radio" name="hs" ${S.hsel==
 ${EDIT?`<button class="btn" onclick="addH()">＋ Νέο ξενοδοχείο</button>`:''}</div>
 <h3>Φόρτιση BYD Seal U</h3><div class="card" style="font-size:14px">87 kWh ωφέλιμη · ~24 kWh/100 χλμ στην εθνική (EV Database/Green NCAP). Μία στάση DC στο Αγρίνιο (Kapsiochas, ΔΕΗ blue 60 kW) σε κάθε διαδρομή. AC στην Κανάρη, Γιάννενα. App <b>PPC blue</b> ως μέλος: AC €0,40 / DC €0,52.</div>
 <h3>Offline & δεδομένα</h3><div class="card"><button class="btn p" onclick="dlTiles()">⬇️ Λήψη χάρτη για offline</button><div id="tilest" style="font-size:13px;color:#78716c">${localStorage.tilesDone?'✅ Χάρτης αποθηκευμένος '+fmtT(+localStorage.tilesDone):'Φωτογραφίες και πρόγραμμα αποθηκεύονται αυτόματα. Ο χάρτης θέλει λήψη μία φορά (~25 MB, με Wi-Fi).'}</div>
-<button class="btn" onclick="fetchWx()">🔄 Ανανέωση καιρού</button><button class="btn" onclick="exportJ()">📤 Αντίγραφο (JSON)</button><button class="btn" onclick="$('#imp').click()">📥 Επαναφορά από αντίγραφο</button><input type="file" id="imp" accept="application/json" hidden onchange="importJ(this)"><button class="btn" style="color:#b91c1c" onclick="resetAll()">↺ Επαναφορά αρχικών</button></div>
+<button class="btn" onclick="fetchWx()">🔄 Ανανέωση καιρού</button><button class="btn p" onclick="shareLink()">🔗 Κοινοποίηση / Αντιγραφή link</button><button class="btn" onclick="exportJ()">📤 Αντίγραφο (JSON)</button><button class="btn" onclick="$('#imp').click()">📥 Επαναφορά από αντίγραφο</button><input type="file" id="imp" accept="application/json" hidden onchange="importJ(this)"><button class="btn" style="color:#b91c1c" onclick="resetAll()">↺ Επαναφορά αρχικών</button></div>
 <p class="tiny">Φωτογραφίες: Wikimedia Commons · ${Object.entries(D.cr).map(([k,c])=>`<a href="${c.p}" target="_blank">${k}</a> (${c.a}, ${c.l})`).join(' · ')} · Χάρτης © OpenStreetMap contributors · Διαδρομές OSRM · Καιρός open-meteo</p>`}
 function setScen(s){S.scen=s;save()}function selH(k){S.hsel=k;save()}
 function editBud(k){const x=S.bud[k],ch=S.scen=='cheap',v=prompt(`${x.a}\nΠοσό (€) για ${ch?'οικονομικό':'πλήρες'} σενάριο (κενό = διαγραφή):`,ch?x.c:x.f);if(v===null)return;if(v.trim()===''){if(confirm('Διαγραφή γραμμής;'))S.bud.splice(k,1)}else{const n=parseFloat(v.replace(',','.'));if(isFinite(n)){ch?x.c=n:x.f=n}}save()}
@@ -80,6 +80,18 @@ function tileList(){const B=[[39.55,39.98,20.65,21.25,9,13],[37.8,39.95,20.6,23.
 async function dlTiles(){const L=tileList(),st=$('#tilest');if(!navigator.onLine){st.textContent='Χρειάζεται σύνδεση.';return}const c=await caches.open('tiles');let done=0,fail=0,i=0;
  const w=async()=>{while(i<L.length){const u=L[i++];try{if(!(await c.match(u))){const r=await fetch(u);if(r.ok)await c.put(u,r);else fail++}}catch(e){fail++}done++;st.textContent=`Λήψη χάρτη: ${done}/${L.length}${fail?` (${fail} απέτυχαν)`:''}`}};
  await Promise.all([w(),w(),w()]);if(!fail){localStorage.tilesDone=Date.now()}st.textContent=fail?`Ολοκληρώθηκε με ${fail} σφάλματα, πάτα ξανά.`:'✅ Ο χάρτης είναι διαθέσιμος offline.'}
+
+// ---- share link (state compressed in URL hash)
+const b64u=u8=>{let s='';for(let i=0;i<u8.length;i+=8192)s+=String.fromCharCode(...u8.subarray(i,i+8192));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
+const ub64=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+async function pipe(u8,T){return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(T)).arrayBuffer())}
+async function encState(o){const u8=new TextEncoder().encode(JSON.stringify(o));if(window.CompressionStream)return 'z'+b64u(await pipe(u8,new CompressionStream('deflate-raw')));return 'j'+b64u(u8)}
+async function decState(s){const k=s[0],u8=ub64(s.slice(1));return JSON.parse(new TextDecoder().decode(k=='z'?await pipe(u8,new DecompressionStream('deflate-raw')):u8))}
+async function shareLink(){const url=location.origin+location.pathname+'#s='+await encState(S);
+ try{if(navigator.share){await navigator.share({title:'Γιάννενα Τριήμερο',text:'Το πρόγραμμά μας για τα Γιάννενα',url});return}}catch(e){if(e.name=='AbortError')return}
+ try{await navigator.clipboard.writeText(url);alert('Το link αντιγράφηκε. Στείλ' το στην άλλη συσκευή.')}catch(e){prompt('Αντέγραψε το link:',url)}}
+async function checkShared(){const m=location.hash.match(/^#s=(.+)$/);if(!m)return false;history.replaceState(null,'',location.pathname);
+ try{const o=await decState(m[1]);if(!o.items)throw 0;if(confirm('Να φορτωθεί το πρόγραμμα που σου στάλθηκε;')){S=o;save()}}catch(e){alert('Το link δεν είναι έγκυρο.')}return true}
 // ---- map
 let map,lines={},mlayer;const C={d1:'#14532d',d2:'#b45309',d3:'#1d4ed8',d3m:'#7c3aed',d4:'#be123c'};
 function initMap(){map=L.map('map',{zoomControl:false,maxZoom:18});L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
@@ -94,7 +106,7 @@ function fit(k){document.querySelectorAll('#mapf button').forEach(b=>b.classList
 function renderAll(){renderPlan();renderPlaces();renderCost();drawMarkers()}
 function tab(t){document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id=='t-'+t));document.querySelectorAll('nav.tb button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));if(t=='map'){if(!map)initMap();setTimeout(()=>map.invalidateSize(),50)}scrollTo(0,0);history.replaceState(null,'','#'+t)}
 document.querySelectorAll('nav.tb button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
-DAY=TM[today]||+localStorage.day||1;renderAll();if(location.hash.length>1)tab(location.hash.slice(1));
+DAY=TM[today]||+localStorage.day||1;renderAll();checkShared().then(sh=>{if(!sh&&location.hash.length>1)tab(location.hash.slice(1))});
 fetchWx();setInterval(()=>{if(TM[today]&&!EDIT&&$('#t-plan').classList.contains('on'))renderPlan()},60000);addEventListener('online',fetchWx);
 const ios=/iphone|ipad|ipod/i.test(navigator.userAgent),sa=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
 function hideHint(){$('#hint').style.display='none';localStorage.hint=1}if(ios&&!sa&&!localStorage.hint)$('#hint').style.display='block';
