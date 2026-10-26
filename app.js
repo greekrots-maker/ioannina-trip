@@ -1,6 +1,6 @@
 const E={stop:'📍',charge:'⚡',food:'🍽️',alt:'↪️',hotel:'🏨'},$=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const KEY='gt-state-v2',gmap=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
-const DEF=()=>({items:D.items.map((i,k)=>({...i,id:k+1})),hot:D.hot.map(h=>({...h})),bud:D.bud.map(b=>({...b})),hsel:-1,scen:'full'});
+const KEY='gt-state-v3',gmap=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+const DEF=()=>({items:D.items.map((i,k)=>({...i,id:k+1})),hot:D.hot.map(h=>({...h})),bud:D.bud.map(b=>({...b})),hsel:0,scen:'full'});
 let S;try{S=JSON.parse(localStorage[KEY])}catch(e){}if(!S||!S.items)S=DEF();
 const save=()=>{localStorage[KEY]=JSON.stringify(S);renderAll()};
 let EDIT=false,DAY=1;
@@ -45,21 +45,21 @@ function renderWx(){let c;try{c=JSON.parse(localStorage[WK])}catch(e){}const el=
  el.innerHTML=`${WC(dd.weather_code[di])} <b>${D.wx[li].n} ${Math.round(dd.temperature_2m_max[di])}°/${Math.round(dd.temperature_2m_min[di])}°</b> · βροχή ${dd.precipitation_probability_max[di]}% · 🌅 ${dd.sunset[di].slice(11)}${extra}<br><small>${wxLive?'Πρόβλεψη open-meteo, ενημέρωση':'⚠️ Αποθηκευμένη πρόβλεψη (offline) από'} ${fmtT(c.ts)}</small>`}
 // ---- places
 function renderPlaces(){const seen=new Set(),uq=a=>a.filter(i=>!seen.has(i.u)&&seen.add(i.u)),skip=/^(Αναχώρηση|Άφιξη Αθήνα)/;
- const G=[['Αξιοθέατα',S.items.filter(i=>(i.ty=='stop'||i.ty=='alt')&&!skip.test(i.n))],['Φαγητό',S.items.filter(i=>i.ty=='food')],['Φόρτιση',S.items.filter(i=>i.ty=='charge')],['Διαμονή'+(S.hsel<0?' (TBD)':''),S.hot.map(h=>({...h,ty:'hotel',x:`€${h.p} / 3 νύχτες`+(S.hot.indexOf(h)==S.hsel?' · ✅ επιλεγμένο':'')}))]];
+ const G=[['Αξιοθέατα',S.items.filter(i=>(i.ty=='stop'||i.ty=='alt')&&!skip.test(i.n))],['Φαγητό',S.items.filter(i=>i.ty=='food')],['Φόρτιση',S.items.filter(i=>i.ty=='charge')],['Διαμονή'+(S.hsel<0?' (TBD)':''),S.hot.map(h=>({...h,ty:'hotel',x:(h.x||`€${h.p} / 3 νύχτες`)+'. Πάρκινγκ: Stoa Sarka (Πυρσινέλα 15, δίπλα, Δευ–Σαβ 07:30–23:30), Σταθμός Πλ. Πύρρου (~150 μ., €4 1η ώρα, €5 ημέρα, €4 νύχτα), Ακρίτα Λουκή 7 (~1 χλμ., €6/24ω, 24ωρο). Το κατάλυμα: ιδιωτικό πάρκινγκ με χρέωση κατόπιν συνεννόησης.'}))]];
  $('#places').innerHTML=G.map(([h,a])=>`<h3>${h}</h3>`+uq(a).map(i=>row({...i,t:''},false)).join('')).join('')}
 // ---- cost
-function total(){const ch=S.scen=='cheap',base=S.bud.reduce((s,b)=>s+(+(ch?b.c:b.f)||0),0),k=ch?2/3:1;
+function total(){const ch=S.scen=='cheap',base=S.bud.reduce((s,b)=>s+(+(ch?b.c:b.f)||0),0),k=1;
  if(S.hsel>=0){const v=base+S.hot[S.hsel].p*k;return[v,v]}const ps=S.hot.map(h=>h.p*k);return[base+Math.min(...ps),base+Math.max(...ps)]}
 const eur=v=>'€'+Math.round(v);
 function renderCost(){const ch=S.scen=='cheap',[a,b]=total(),rng=a==b?eur(a):`${eur(a)}–${eur(b)}`,pp=a==b?eur(a/2):`${eur(a/2)}–${eur(b/2)}`,fits=b<=400,near=a<=410;
- $('#cost').innerHTML=`<div class="seg"><button class="${ch?'':'on'}" onclick="setScen('full')">Πλήρες · 3 νύχτες</button><button class="${ch?'on':''}" onclick="setScen('cheap')">Οικονομικό · 2 νύχτες</button></div>
+ $('#cost').innerHTML=`<div class="seg"><button class="${ch?'':'on'}" onclick="setScen('full')">Πλήρες · 3 νύχτες</button><button class="${ch?'on':''}" onclick="setScen('cheap')">Οικονομικό · 3 νύχτες</button></div>
 <div class="card"><div class="big">${rng}</div><div style="color:#78716c">${pp} το άτομο${S.hsel<0?' · ανάλογα με το ξενοδοχείο':''}</div></div>
 <div class="card ${fits?'okc':near?'okc':'warn'}">${fits?'✅ Χωράει στα €400.':near?'≈ Περίπου στα €400.':'⚠️ Δεν χωράει στα €400: '+(a>400?`${eur(a-400)}–${eur(b-400)}`:`έως ${eur(b-400)}`)+' πάνω.'}${ch?'<br><small>Οικονομικό: φθηνά μεσημεριανά, 2 νύχτες (επιστροφή Πέμπτη), ξενοδοχείο με δωρεάν φόρτιση.</small>':''}</div>
 <h3>Ανάλυση ${EDIT?'(πάτα για αλλαγή)':''}</h3><div class="card">${S.bud.map((x,k)=>`<div class="li" ${EDIT?`onclick="editBud(${k})"`:''}><div>${esc(x.a)}<small>${esc(x.n)}</small></div><b>${eur(ch?x.c:x.f)}${EDIT?' ✎':''}</b></div>`).join('')}
-<div class="li"><div>Ξενοδοχείο (${ch?'2':'3'} νύχτες)<small>${S.hsel<0?'TBD: εύρος υποψηφίων':esc(S.hot[S.hsel].n)}</small></div><b>${S.hsel<0?(()=>{const p=S.hot.map(h=>h.p*(ch?2/3:1));return eur(Math.min(...p))+'–'+eur(Math.max(...p))})():eur(S.hot[S.hsel].p*(ch?2/3:1))}</b></div>
+<div class="li"><div>Ξενοδοχείο (3 νύχτες)<small>${S.hsel<0?'TBD: εύρος υποψηφίων':esc(S.hot[S.hsel].n)}</small></div><b>${S.hsel<0?(()=>{const p=S.hot.map(h=>h.p);return eur(Math.min(...p))+'–'+eur(Math.max(...p))})():eur(S.hot[S.hsel].p)}</b></div>
 ${EDIT?`<button class="btn" onclick="addBud()">＋ Νέο έξοδο</button>`:''}</div>
-<h3>Διαμονή (κοντά στη φύση)</h3><div class="card"><label class="hrow"><input type="radio" name="hs" ${S.hsel<0?'checked':''} onchange="selH(-1)"><div class="c">Δεν έχει κλειστεί (TBD)</div></label>
-${S.hot.map((h,k)=>`<label class="hrow"><input type="radio" name="hs" ${S.hsel==k?'checked':''} onchange="selH(${k})"><div class="c"><b>${esc(h.n)}</b><br><small>€${h.p} για 3 νύχτες</small></div>${EDIT?`<button class="ib" onclick="event.preventDefault();editH(${k})">✎</button>`:`<a href="${h.u}" target="_blank">Χάρτης ›</a>`}</label>`).join('')}
+<h3>Διαμονή · ✅ κλεισμένο</h3><div class="card">
+${S.hot.map((h,k)=>`<label class="hrow"><input type="radio" name="hs" ${S.hsel==k?'checked':''} onchange="selH(${k})"><div class="c"><b>${esc(h.n)}</b><br><small>€${String(h.p).replace('.',',')} για 3 νύχτες · ${esc(h.x||'')}</small></div>${EDIT?`<button class="ib" onclick="event.preventDefault();editH(${k})">✎</button>`:`<a href="${h.u}" target="_blank">Χάρτης ›</a>`}</label>`).join('')}
 ${EDIT?`<button class="btn" onclick="addH()">＋ Νέο ξενοδοχείο</button>`:''}</div>
 <h3>Φόρτιση BYD Seal U</h3><div class="card" style="font-size:14px">87 kWh ωφέλιμη · ~24 kWh/100 χλμ στην εθνική (EV Database/Green NCAP). Πήγαινε: DC στο Αγρίνιο (Kapsiochas, ΔΕΗ blue 60 kW). Γυρισμός μέσω Μετεώρων (488 χλμ): ξεκινάτε ~100%, DC στο Shell Travel Stop Λαμίας (εναλλακτικά Αταλάντη NRG ή ΔΕΗ blue Κάστρο 135 kW). AC στην Κανάρη, Γιάννενα. App <b>PPC blue</b> ως μέλος: AC €0,40 / DC €0,52.</div>
 <h3>Offline & δεδομένα</h3><div class="card"><button class="btn p" onclick="dlTiles()">⬇️ Λήψη χάρτη για offline</button><div id="tilest" style="font-size:13px;color:#78716c">${localStorage.tilesDone?'✅ Χάρτης αποθηκευμένος '+fmtT(+localStorage.tilesDone):'Φωτογραφίες και πρόγραμμα αποθηκεύονται αυτόματα. Ο χάρτης θέλει λήψη μία φορά (~25 MB, με Wi-Fi).'}</div>
