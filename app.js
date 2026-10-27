@@ -1,7 +1,7 @@
 const E={stop:'📍',charge:'⚡',food:'🍽️',alt:'↪️',hotel:'🏨'},$=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const KEY='gt-state-v3',gmap=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
 const DEF=()=>({items:D.items.map((i,k)=>({...i,id:k+1})),hot:D.hot.map(h=>({...h})),bud:D.bud.map(b=>({...b})),hsel:0,scen:'full'});
-let S;try{S=JSON.parse(localStorage[KEY])}catch(e){}if(!S||!S.items)S=DEF();if(S.dv!=='w2'){const n=DEF();let m=Math.max(0,...S.items.map(i=>+i.id||0));S.items=S.items.filter(i=>i.d!=2).concat(n.items.filter(i=>i.d==2).map(i=>({...i,id:++m})));S.dv='w2';localStorage[KEY]=JSON.stringify(S)}
+let S;try{S=JSON.parse(localStorage[KEY])}catch(e){}if(!S||!S.items)S=DEF();function mig(o){if(o.dv!=='w2'){const n=DEF();let m=Math.max(0,...o.items.map(i=>+i.id||0));o.items=o.items.filter(i=>i.d!=2).concat(n.items.filter(i=>i.d==2).map(i=>({...i,id:++m})));o.dv='w2'}return o}S=mig(S);localStorage[KEY]=JSON.stringify(S);
 const save=()=>{localStorage[KEY]=JSON.stringify(S);renderAll()};
 let EDIT=false,DAY=1;
 const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Athens'}).format(new Date()),TM={'2026-10-27':1,'2026-10-28':2,'2026-10-29':3,'2026-10-30':4},DATES=['2026-10-27','2026-10-28','2026-10-29','2026-10-30'];
@@ -91,7 +91,7 @@ async function shareLink(){const url=location.origin+location.pathname+'#s='+awa
  try{if(navigator.share){await navigator.share({title:'Γιάννενα Τριήμερο',text:'Το πρόγραμμά μας για τα Γιάννενα',url});return}}catch(e){if(e.name=='AbortError')return}
  try{await navigator.clipboard.writeText(url);alert('Το link αντιγράφηκε. Στείλε το στην άλλη συσκευή.')}catch(e){prompt('Αντέγραψε το link:',url)}}
 async function checkShared(){const m=location.hash.match(/^#s=(.+)$/);if(!m)return false;history.replaceState(null,'',location.pathname);
- try{const o=await decState(m[1]);if(!o.items)throw 0;if(confirm('Να φορτωθεί το πρόγραμμα που σου στάλθηκε;')){S=o;save()}}catch(e){alert('Το link δεν είναι έγκυρο.')}return true}
+ try{const o=await decState(m[1]);if(!o.items)throw 0;if(confirm('Να φορτωθεί το πρόγραμμα που σου στάλθηκε;')){S=mig(o);save()}}catch(e){alert('Το link δεν είναι έγκυρο.')}return true}
 // ---- map
 let map,lines={},mlayer;const C={d1:'#14532d',d2:'#b45309',d3:'#1d4ed8',d3m:'#7c3aed',d4:'#be123c'};
 function initMap(){map=L.map('map',{zoomControl:false,maxZoom:18});L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
