@@ -1,7 +1,7 @@
 const E={stop:'📍',charge:'⚡',food:'🍽️',alt:'↪️',hotel:'🏨'},$=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const KEY='gt-state-v3',gmap=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
 const DEF=()=>({items:D.items.map((i,k)=>({...i,id:k+1})),hot:D.hot.map(h=>({...h})),bud:D.bud.map(b=>({...b})),hsel:0,scen:'full'});
-let S;try{S=JSON.parse(localStorage[KEY])}catch(e){}if(!S||!S.items)S=DEF();function mig(o){if(o.dv!=='w2'){const n=DEF();let m=Math.max(0,...o.items.map(i=>+i.id||0));o.items=o.items.filter(i=>i.d!=2).concat(n.items.filter(i=>i.d==2).map(i=>({...i,id:++m})));o.dv='w2'}return o}S=mig(S);localStorage[KEY]=JSON.stringify(S);
+let S;try{S=JSON.parse(localStorage[KEY])}catch(e){}if(!S||!S.items)S=DEF();function mig(o){if(o.dv!=='w3'){const n=DEF();let m=Math.max(0,...o.items.map(i=>+i.id||0));o.items=o.items.filter(i=>i.d!=2).concat(n.items.filter(i=>i.d==2).map(i=>({...i,id:++m})));o.dv='w3'}return o}S=mig(S);localStorage[KEY]=JSON.stringify(S);
 const save=()=>{localStorage[KEY]=JSON.stringify(S);renderAll()};
 let EDIT=false,DAY=1;
 const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Athens'}).format(new Date()),TM={'2026-10-27':1,'2026-10-28':2,'2026-10-29':3,'2026-10-30':4},DATES=['2026-10-27','2026-10-28','2026-10-29','2026-10-30'];
